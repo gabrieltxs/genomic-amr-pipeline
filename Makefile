@@ -1,6 +1,6 @@
 # Makefile
 
-.PHONY: install run scaffold kmer gexp target modelswin modelsunix
+.PHONY: install run scaffold kmer gexp target models boost plot scaffoldunix kmerunix gexpunix targetunix modelsunix boostunix test folders
 
 install:
 	pip install -r requirements.txt
@@ -38,13 +38,13 @@ plot:
 
 
 scaffoldunix:
-	python script_scaffold.py -j start_data_models_unix.json
+	python script_scaffold.py -j start_data_scaffold_unix.json
 
 kmerunix:
-	python script_kmer.py -j start_data_models_unix.json
+	python script_kmer.py -j start_data_kmer_unix.json
 
 gexpunix:
-	python script_gexp.py -j start_data_models_unix.json
+	python script_gexp.py -j start_data_gexp_unix.json
 
 targetunix:
 	python script_target.py -j start_data_target_unix.json
@@ -54,3 +54,10 @@ modelsunix:
 
 boostunix:
 	python script_boost.py -j start_data_boost_unix.json
+
+
+test:
+	python -m unittest discover -s tests -v
+
+folders:
+	python folder_structure.py

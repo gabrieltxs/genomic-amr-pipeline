@@ -1,50 +1,24 @@
-import subprocess
-import json
-import os
+"""Run scaffold.py from an existing start_data JSON configuration."""
 import argparse
+from pipeline_runner import load_settings, run_stage
 
 
 def run_scaffold(main, file_path, output_path):
-    command = f"python scaffold.py -f {main} -p {file_path} -o {output_path}"
-    print(f"Running command: {command}")
-    subprocess.call(command, shell=True)
-    print(f"Command completed: {command}")
+    run_stage("scaffold.py", "-f", main, "-p", file_path, "-o", output_path)
 
 
 def main(json_file):
-    json_path = os.path.join(os.getcwd(), json_file)
-    with open(json_path) as json_data:
-        data = json.load(json_data)
-
-    # Assign values to variables or dictionaries based on the context
-    for key, value in data.items():
-        if isinstance(value['value'], list):
-            if key == 'path':
-                path_list = value['value']
-            elif key =='func':
-                func_list = value['value']
-        else:
-            if key == 'output':
-                output = value['value']
-
-    total_commands = len(path_list) 
-    completed_commands = 0
-
-    for i, func_name in enumerate(func_list):
-        path = path_list[i]
-        run_scaffold(func_name, path, output)
-        completed_commands += 1
-        progress = (completed_commands / total_commands) * 100
-        print(f"Progress: {progress:.2f}%")
+    data = load_settings(json_file, ('path', 'func', 'output'))
+    for index, (func, path) in enumerate(zip(data["func"], data["path"], strict=True), start=1):
+        run_scaffold(func, path, data["output"])
+        print(f"Progress: {index / len(data['path']) * 100:.2f}%")
 
 
 if __name__ == "__main__":
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Scaffold Runner")
-    parser.add_argument("-j", "--json", help="JSON file path")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-j", "--json", help="JSON configuration path", default=None)
     args = parser.parse_args()
-
     if args.json:
-        main(os.path.join(os.getcwd(),args.json))
+        main(args.json)
     else:
         parser.print_help()

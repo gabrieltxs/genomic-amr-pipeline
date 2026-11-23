@@ -1,43 +1,19 @@
-import subprocess
-import json
-import os
+"""Run target.py from an existing start_data JSON configuration."""
 import argparse
+from pipeline_runner import load_settings, run_stage
 
 
 def run_gexp(output, path):
-    """
-    Runs the target.py script with the provided output and path.
-    """
-    command = f"python target.py -o {output} -p {path}"
-    print(f"Running command: {command}")
-    subprocess.call(command, shell=True)
-    print(f"Command completed: {command}")
+    run_stage("target.py", "-o", output, "-p", path)
 
 
 def main(json_file):
-    """
-    Main function that loads data from the JSON file and executes the script.
-    """
-    json_path = os.path.join(os.getcwd(), json_file)
-
-    with open(json_path) as json_data:
-        data = json.load(json_data)
-
-    # Assign values to variables or dictionaries based on the context
-    for key, value in data.items():
-        if key == 'output':
-            output = value['value']
-        elif key == 'path':
-            path = value['value']
-
-    run_gexp(output, path)
+    data = load_settings(json_file, ('output', 'path'))
+    run_gexp(data["output"], data["path"])
 
 
-if __name__ == '__main__':
-    # Parse command-line arguments
-    parser = argparse.ArgumentParser(description='Run target.py script with provided JSON file')
-    parser.add_argument('-j', '--json', help='Path to the JSON file', required=True)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-j", "--json", help="JSON configuration path", required=True)
     args = parser.parse_args()
-
-    # Call the main function with the JSON file path
     main(args.json)
