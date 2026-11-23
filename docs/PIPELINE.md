@@ -1,4 +1,4 @@
-# Pipeline and maintenance notes
+# Genomic AMR Pipeline: pipeline and maintenance notes
 
 ## Data flow
 

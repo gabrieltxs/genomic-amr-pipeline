@@ -1,4 +1,6 @@
-# BIOINF
+# Genomic AMR Pipeline
+
+Formerly **BIOINF**. The project now uses the repository name `genomic-amr-pipeline`; existing script names, configuration files and historical artifacts are retained.
 
 A research pipeline for **antimicrobial-resistance prediction** from genomic k-mer frequencies and specialty-gene annotations. The historical `Versão2-GPU` branch combines data preparation, feature extraction, feature boosting and LightGBM-based evaluation.
 
@@ -25,8 +27,8 @@ Root-level script names and JSON schemas are retained for compatibility with exi
 The orchestration layer requires **Python 3.10+** and uses only the standard library:
 
 ```bash
-git clone https://github.com/gabrieltxs/BIOINF.git
-cd BIOINF
+git clone https://github.com/gabrieltxs/genomic-amr-pipeline.git
+cd genomic-amr-pipeline
 python -m unittest discover -s tests -v
 python script_kmer.py --help
 python folder_structure.py
