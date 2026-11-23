@@ -1,68 +1,24 @@
-import subprocess
-import json
-import os
+"""Run kmer.py from an existing start_data JSON configuration."""
 import argparse
+from pipeline_runner import load_settings, run_stage
 
 
 def run_kmer_extraction(main, file_path, output_path, k_value, foldername, core_num):
-    command = f"python kmer.py -f {main} -k {k_value} -p {file_path} -o {output_path} -fn {foldername} -c {core_num}"
-    print(f"Running command: {command}")
-    subprocess.call(command, shell=True)
-    print(f"Command completed: {command}")
+    run_stage("kmer.py", "-f", main, "-k", k_value, "-p", file_path, "-o", output_path, "-fn", foldername, "-c", core_num)
 
 
 def main(json_file):
-    json_path = os.path.join(os.getcwd(), json_file)
-    with open(json_path) as json_data:
-        data = json.load(json_data)
-
-    # Variables to store the values
-    k_mer = None
-    output = None
-    cores = None
-
-    # Lists to store the values
-    path_list = []
-    foldername_list = []
-    func_list = []
-
-    # Assign values to variables or lists based on the context
-    for key, value in data.items():
-        if isinstance(value['value'], list):
-            if key == 'path':
-                path_list = value['value']
-            elif key == 'foldername':
-                foldername_list = value['value']
-            elif key == 'func':
-                func_list = value['value']
-        else:
-            if key == 'k_mer':
-                k_mer = value['value']
-            elif key == 'output':
-                output = value['value']
-            elif key == 'cores':
-                cores = int(value['value'])
-
-    total_commands = len(path_list)
-    completed_commands = 0
-
-    for i, path_name in enumerate(path_list):
-        foldername = foldername_list[i]
-        if foldername == 'wgs':
-            run_kmer_extraction(func_list[1], path_name, output, k_mer, foldername, cores)
-        else:
-            run_kmer_extraction(func_list[0], path_name, output, k_mer, foldername, cores)
-        completed_commands += 1
-        progress = (completed_commands / total_commands) * 100
-        print(f"Progress: {progress:.2f}%")
+    data = load_settings(json_file, ('path', 'foldername', 'func', 'output', 'k_mer', 'cores'))
+    for index, (path, folder) in enumerate(zip(data["path"], data["foldername"], strict=True), start=1):
+        func = data["func"][1 if folder == "wgs" else 0]
+        run_kmer_extraction(func, path, data["output"], data["k_mer"], folder, int(data["cores"]))
+        print(f"Progress: {index / len(data['path']) * 100:.2f}%")
 
 
 if __name__ == "__main__":
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Kmer Extraction Runner")
-    parser.add_argument("-j", "--json", help="JSON file path")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-j", "--json", help="JSON configuration path", default=None)
     args = parser.parse_args()
-
     if args.json:
         main(args.json)
     else:
